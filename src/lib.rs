@@ -1,4 +1,5 @@
 use ureq::{Agent, AgentBuilder};
+use serde::Deserialize;
 
 pub struct UserKey {
     username: String,
@@ -13,6 +14,9 @@ impl UserKey {
         }
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct Pages(Vec<String>);
 
 pub struct Andesite {
     uri: String,
@@ -34,28 +38,22 @@ impl Andesite {
         }
     }
 
-    pub fn request_index(self) -> String {
+    pub fn request_index(self) -> Pages {
         self.agent
             .get(&self.uri)
             .set("username", &self.user_key.username)
             .set("password", &self.user_key.password)
             .call().unwrap()
-            .into_string().unwrap()
+            .into_json().unwrap()
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::env;
-
-    use dotenv::dotenv;
-
     use crate::{Andesite, UserKey};
 
     fn get_uri() -> String {
-        dotenv().ok();
-
-        env::var("andesite_uri").expect("Must specifiy an andesite_env in env").into()
+        String::from("127.0.0.1:8000")
     }
 
     #[test]
@@ -64,6 +62,6 @@ mod tests {
 
         let andesite = Andesite::new(uri, UserKey::new("admin".into(), "password".into()));
 
-        assert_eq!("{\"hello\": \"world\"}", andesite.request_index());
+        println!("{:?}", andesite.request_index());
     }
 }
