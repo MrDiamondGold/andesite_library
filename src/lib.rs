@@ -16,7 +16,7 @@ impl UserKey {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Pages(Vec<String>);
+pub struct Pages(pub Vec<String>);
 
 pub struct Andesite {
     uri: String,
